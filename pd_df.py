@@ -37,7 +37,7 @@ class DataFrame(metaclass=_Create_Data):
         return self.data_list[item]
 
     def __repr__(self):
-        return f"Hello world"
+        return f"{self.data_list}"
 
     def _common_repr(self, key):
         def custom_repr(_self):
@@ -78,8 +78,8 @@ class DataFrame(metaclass=_Create_Data):
             return tuple(final_tup)
 
         def __repr__(self) -> str:
-            print(self.tuple)
-            return f"_dtype : DataFrame_dbool"
+            return f"{self.tuple}\n_dtype : DataFrame_dbool"
+
 
         def __and__(self, comp_obj):
             final_obj = self._compare(comp_obj, "and")

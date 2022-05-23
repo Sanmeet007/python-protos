@@ -1,5 +1,6 @@
 from pprint import pprint
 
+
 class _Create_Data(type):
     def __new__(self, class_name, bases, attributes):
         return type(class_name, (), attributes)
@@ -16,14 +17,10 @@ class DataFrame(metaclass=_Create_Data):
             setattr(
                 self,
                 "_" + key,
-                type(
-                    key,
-                    (),
-                    {
+                type(key,(),{
                         "__repr__": self._common_repr(key),
                         "__eq__": self._common_eq(key),
-                    },
-                ),
+                    }),
             )
             setattr(self, key, self.__getattribute__("_" + key)())
 
@@ -145,6 +142,7 @@ if __name__ == "__main__":
                 "id": 2,
                 "data": "Ex aute adipisicing esse do excepteur dolore. Sunt deserunt sint tempor ad magna anim eu esse enim incididunt exercitation ipsum. Excepteur aliqua elit veniam consectetur exercitation eiusmod amet do incididunt cillum aliquip. Eiusmod nulla incididunt quis ex. Adipisicing mollit Lorem sunt aliqua ex voluptate exercitation. Qui ut ex qui et magna ut ad cupidatat cupidatat esse laborum dolore enim. Aliquip eiusmod quis eu ullamco veniam.",
                 "uuid": "eihr8rhre8013nqfwe-9u",
+                "color": "blue",
             },
             {
                 "id": 3,
@@ -154,4 +152,4 @@ if __name__ == "__main__":
         ]
     )
 
-    pprint(data[(data.color == None)])
+    pprint(data[(data.id == 2) & (data.color == "blue")])

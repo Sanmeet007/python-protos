@@ -106,8 +106,7 @@ class DataFrame(metaclass=_Create_Data):
 
 if __name__ == "__main__":
     # I am awesome like a pandas dataframe ^_^
-    # equivalent to
-    # SELECT * FROM `table` WHERE color = None
+    
     data = DataFrame(
         [
             {

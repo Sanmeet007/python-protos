@@ -104,28 +104,6 @@ class DataFrame(metaclass=_Create_Data):
             return self
 
 
-data = DataFrame(
-    [
-        {
-            "id": 1,
-            "data": "Hello wolrdEnim sunt ex cupidatat occaecat eiusmod aute ut officia. Esse esse aliqua aute excepteur ipsum reprehenderit veniam duis magna mollit. Nulla proident nostrud non non anim qui in. Ad anim nisi et dolore dolor minim duis adipisicing nostrud est cupidatat id. Velit ex dolore adipisicing duis labore officia deserunt reprehenderit tempor et dolor. Eiusmod aliqua commodo est et laboris labore mollit.",
-            "uuid": "ghjk3878j321134",
-            "color": "red",
-        },
-        {
-            "id": 2,
-            "data": "Ex aute adipisicing esse do excepteur dolore. Sunt deserunt sint tempor ad magna anim eu esse enim incididunt exercitation ipsum. Excepteur aliqua elit veniam consectetur exercitation eiusmod amet do incididunt cillum aliquip. Eiusmod nulla incididunt quis ex. Adipisicing mollit Lorem sunt aliqua ex voluptate exercitation. Qui ut ex qui et magna ut ad cupidatat cupidatat esse laborum dolore enim. Aliquip eiusmod quis eu ullamco veniam.",
-            "uuid": "eihr8rhre8013nqfwe-9u",
-        },
-        {
-            "id": 3,
-            "data": "Elit consectetur nisi esse fugiat anim irure. Id et non eu ullamco duis Lorem elit dolor sunt do id veniam. Sit id anim reprehenderit sint irure consectetur anim. Velit deserunt reprehenderit ea officia dolore aliquip sit incididunt culpa. Nostrud magna ut laboris nulla sit enim sunt deserunt eiusmod laboris adipisicing ea excepteur.",
-            "uuid": "b08349m320m=-081",
-        },
-    ]
-)
-
-
 if __name__ == "__main__":
     # I am awesome like a pandas dataframe ^_^
     # equivalent to

@@ -1,7 +1,9 @@
 from pprint import pprint
+import prettytable, json
 
 
 class _Create_Data(type):
+    # Class modifier
     def __new__(self, class_name, bases, attributes):
         return type(class_name, (), attributes)
 
@@ -16,14 +18,20 @@ class DataFrame(metaclass=_Create_Data):
         for key in self._item_keys:
             setattr(
                 self,
-                "_" + key,
-                type(key,(),{
+                f"_{key}",
+                type(
+                    key,
+                    (),
+                    {
                         "__repr__": self._common_repr(key),
                         "__eq__": self._common_eq(key),
-                    }),
+                        "__gt__": self._common_gt(key),
+                    },
+                ),
             )
             setattr(self, key, self.__getattribute__("_" + key)())
 
+    # Dundder methods
     def __getitem__(self, item):
         if isinstance(item, self._dbool):
             count = 0
@@ -32,64 +40,164 @@ class DataFrame(metaclass=_Create_Data):
                 if ele:
                     current_list.append(self.data_list[index])
                     count += 1
-            return None if count == 0 else current_list
+
+            x = prettytable.PrettyTable()
+            x.field_names = self._item_keys
+            for z in current_list:
+                z = [*z.values()]
+                for i, y in enumerate(z):
+                    if len(str(y)) > 18:
+                        z[i] = f"{y[:17]}..."
+                x.add_row([*z])
+
+            return None if count == 0 else f"{x}"
 
         return self.data_list[item]
 
     def __repr__(self):
-        return f"{self.data_list}"
+        x = prettytable.PrettyTable()
+        x.field_names = self._item_keys
+        for z in self.data_list:
+            z = [*z.values()]
+            for i, y in enumerate(z):
+                if len(str(y)) > 18:
+                    z[i] = f"{y[:17]}..."
+            x.add_row([*z])
 
+        return f"{x}"
+
+    # Super Private methods
+    def __add_items(self):
+        """
+        Returns all the possible stub heads
+        """
+        stub_heads = []
+
+        for item in self.data_list:
+            for x in item.keys():
+                if x not in stub_heads:
+                    stub_heads.append(x)
+
+        self._item_keys = stub_heads
+
+    def __uinform_data_list(self):
+        """
+        Modifies the data_list to make it uniform.
+        NOTE : attributes with no values or if they dont exist then None will be assigned by default.
+
+        eg .
+            [{
+                "id" : "_id",
+                "_v" : "value",
+            },
+            {
+                "id" : "_id"
+            }]
+
+        Here the sencond dict will be assigned a "_v" attribute with a default of None
+        """
+        for item in self.data_list:
+            for x in self._item_keys:
+                if item.get(x, False) == False:
+                    item[x] = None
+
+    # Private methods
+    def _pr(self):
+        pass
+
+    # Run time subclass methods generators
     def _common_repr(self, key):
+        """
+        Defines the __repr__ for the subclass object generated on the fly or at run time
+        """
+
         def custom_repr(_self):
-            return f"This is a common repr for {key}"
+            x = prettytable.PrettyTable()
+            x.field_names = ["index", key]
+
+            for i, z in enumerate(self.data_list):
+                for k, v in z.items():
+                    if k == key:
+                        if len(str(v)) > 18:
+                            v = f"{v[:20]}..."
+                        x.add_row([i, v])
+
+            return f"{x}\n_dtype : DataFrame_attr({key})"
 
         return custom_repr
 
     def _common_eq(self, key):
+        """
+        Defines the __eq__ for the subclass object generated on the fly or at run time
+        """
+
         def common_eq(_self, val):
             dbool = self._dbool(self.data_list, key, val)
             return dbool
 
         return common_eq
 
-    def __add_items(self):
-        keys = (list(elem.keys()) for elem in self.data_list)
-        final_keys = set({})
-        for key in keys:
-            for k in key:
-                final_keys.add(k)
-        self._item_keys = final_keys
+    def _common_gt(self, key):
+        """
+        Defines the __gt__ for the subclass object generated on the fly or at run time
+        """
 
-    def __uinform_data_list(self):
-        for item in self.data_list:
-            for x in self._item_keys:
-                if item.get(x, False) == False:
-                    item[x] = None
+        def common_gt(_self):
+            pass
 
+        return common_gt
+
+    # Private Subclasses
     class _dbool:
+        """
+        This class is responisble for logically fetching the data based on the fields or the stub heads (basically the keys of dicts)
+        """
+
         def __init__(self, data_list, key, val) -> None:
             self.data_list = data_list
             self.tuple = self._gen_tup(key, val)
 
+        # Dundder methods
+        def __repr__(self) -> str:
+            """
+            Prints the _dbool object using the prettytable module
+            """
+
+            x = prettytable.PrettyTable()
+            x.field_names = ["index", "bool"]
+            for i, z in enumerate(self.tuple):
+                x.add_row([i, z])
+
+            return f"{x}\n_dtype : DataFrame_dbool"
+
+        def __and__(self, comp_obj):
+            """
+            Overloads the & to give a logical and for _dbool data
+            """
+            final_obj = self._compare(comp_obj, "and")
+            return final_obj
+
+        def __or__(self, comp_obj):
+            """
+            Overloads the | to give a logical or for _dbool data
+            """
+            final_obj = self._compare(comp_obj, "or")
+            return final_obj
+
+        # Private methods
         def _gen_tup(self, key, val):
+            """
+            Converts the data_list to tuple which is used for further comparision
+            """
             final_tup = []
             for _, elem in enumerate(self.data_list):
                 final_tup.append(elem[key] == val)
             return tuple(final_tup)
 
-        def __repr__(self) -> str:
-            return f"{self.tuple}\n_dtype : DataFrame_dbool"
-
-
-        def __and__(self, comp_obj):
-            final_obj = self._compare(comp_obj, "and")
-            return final_obj
-
-        def __or__(self, comp_obj):
-            final_obj = self._compare(comp_obj, "or")
-            return final_obj
-
         def _compare(self, dbool_obj, op_type):
+            """
+            Used to compare the _dbool objects logically
+            """
             tup = zip(self.tuple, dbool_obj.tuple)
             final_tup = []
             for x, y in tup:
@@ -106,7 +214,7 @@ class DataFrame(metaclass=_Create_Data):
 
 if __name__ == "__main__":
     # I am awesome like a pandas dataframe ^_^
-    
+
     data = DataFrame(
         [
             {
@@ -129,4 +237,18 @@ if __name__ == "__main__":
         ]
     )
 
-    pprint(data[(data.id == 2) & (data.color == "blue")])
+    print("Printing the whole data table : ")
+    print(data)
+    print("\n")
+
+    print("Printing the only id : ")
+    print(data.id)
+    print("\n")
+
+    print("Printing the or condtion based table : ")
+    print(data[(data.id == 3) | (data.color == "blue")])
+    print("\n")
+
+    print("Printing the and condtion based table : ")
+    print(data[(data.id == 3) & (data.uuid == "b08349m320m=-081")])
+    print("\n")

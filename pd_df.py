@@ -1,8 +1,5 @@
 from pprint import pprint
 
-from custom_modules import console
-
-
 class _Create_Data(type):
     def __new__(self, class_name, bases, attributes):
         return type(class_name, (), attributes)
@@ -131,7 +128,30 @@ data = DataFrame(
     ]
 )
 
-# I am awesome like a pandas dataframe ^_^
-# equivalent to
-# SELECT * FROM `table` WHERE color = None
-pprint(data[(data.color == None)])
+
+if __name__ == "__main__":
+    # I am awesome like a pandas dataframe ^_^
+    # equivalent to
+    # SELECT * FROM `table` WHERE color = None
+    data = DataFrame(
+        [
+            {
+                "id": 1,
+                "data": "Hello wolrdEnim sunt ex cupidatat occaecat eiusmod aute ut officia. Esse esse aliqua aute excepteur ipsum reprehenderit veniam duis magna mollit. Nulla proident nostrud non non anim qui in. Ad anim nisi et dolore dolor minim duis adipisicing nostrud est cupidatat id. Velit ex dolore adipisicing duis labore officia deserunt reprehenderit tempor et dolor. Eiusmod aliqua commodo est et laboris labore mollit.",
+                "uuid": "ghjk3878j321134",
+                "color": "red",
+            },
+            {
+                "id": 2,
+                "data": "Ex aute adipisicing esse do excepteur dolore. Sunt deserunt sint tempor ad magna anim eu esse enim incididunt exercitation ipsum. Excepteur aliqua elit veniam consectetur exercitation eiusmod amet do incididunt cillum aliquip. Eiusmod nulla incididunt quis ex. Adipisicing mollit Lorem sunt aliqua ex voluptate exercitation. Qui ut ex qui et magna ut ad cupidatat cupidatat esse laborum dolore enim. Aliquip eiusmod quis eu ullamco veniam.",
+                "uuid": "eihr8rhre8013nqfwe-9u",
+            },
+            {
+                "id": 3,
+                "data": "Elit consectetur nisi esse fugiat anim irure. Id et non eu ullamco duis Lorem elit dolor sunt do id veniam. Sit id anim reprehenderit sint irure consectetur anim. Velit deserunt reprehenderit ea officia dolore aliquip sit incididunt culpa. Nostrud magna ut laboris nulla sit enim sunt deserunt eiusmod laboris adipisicing ea excepteur.",
+                "uuid": "b08349m320m=-081",
+            },
+        ]
+    )
+
+    pprint(data[(data.color == None)])

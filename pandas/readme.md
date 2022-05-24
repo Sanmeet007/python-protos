@@ -2,7 +2,7 @@
 
 **_Love torturing data ? Cause if you torture the data it will confess! Feel the data talking to you #AliveData._**
 
-![Pandas Proto](https://ibb.co/x8MxZ9F)
+![Pandas Proto](https://sanmeet007.github.io/python-protos/images/pandas-proto.png)
 
 ---
 

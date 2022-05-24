@@ -7,6 +7,7 @@
 ---
 
 This is an awesome library made by developer for data crazy devs. This library is just a simple implementation of the most famous `pandas` lib used by data scientist for visualizing data.
+**Requires python version 3.10 or later**
 
 ## General Overview
 
@@ -14,6 +15,7 @@ This is an awesome library made by developer for data crazy devs. This library i
 - You can filter , print , convert and do lot more with this.
 - Uses prettytable , json , json2html like libraries under the hood for better functioning.
 - Made by dev for devs and data scientists ^\_^
+- Compatible with python version 3.10 or above 
 
 ### Dependencies :
 

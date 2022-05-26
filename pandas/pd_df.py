@@ -10,8 +10,24 @@ class _Create_Data(type):
 
 class DataFrame(metaclass=_Create_Data):
     data_list: list = []
+    indexed:bool
 
-    def __init__(self, data_list):
+    def __init__(self, data_list , sort_order:tuple|list|None=None  , **kwargs):
+        self.indexed = kwargs.get("indexed"  , False)
+        self.sort_order  = sort_order
+
+        if not isinstance(data_list, list) : 
+            raise TypeError("Invalid data_list type")     
+        if not isinstance(sort_order , list) and sort_order is not None : 
+            raise TypeError("Invalid sort_order !")
+
+        if self.sort_order == None : 
+            # print("Resorting to default sort !")
+            self.sorted_order  = sorted
+        else : 
+            # print("Custom sort enabled !")
+            self.sorted_order = self._create_sorter()
+
         self.data_list = data_list
         self.__add_items()
         self.__uinform_data_list()
@@ -61,23 +77,24 @@ class DataFrame(metaclass=_Create_Data):
                     current_list.append(self.data_list[index])
                     count += 1
 
-            return None if count == 0 else DataFrame([*current_list])
+            return None if count == 0 else DataFrame([*current_list] , self.sort_order , indexed=self.indexed)
 
         li = self.data_list[item]
         if type(li) != list:
-            return DataFrame([li])
+            return DataFrame([li] , self.sort_order , indexed=self.indexed)
         else:
-            return DataFrame(li)
+            return DataFrame(li , self.sort_order)
 
     def __repr__(self):
         x = prettytable.PrettyTable()
-        x.field_names = self._item_keys
-        for z in self.data_list:
+        
+        x.field_names = [ " ", *self._item_keys]  if self.indexed else self._item_keys
+        for index , z in enumerate(self.data_list):
             z = [*z.values()]
             for i, y in enumerate(z):
                 if len(str(y)) > 18:
                     z[i] = f"{y[:17]}..."
-            x.add_row([*z])
+            x.add_row([index , *z] if self.indexed else [*z])
 
         return f"{x}\n_dtype : Dataframe_object"
 
@@ -94,6 +111,7 @@ class DataFrame(metaclass=_Create_Data):
                     stub_heads.append(x)
 
         self._item_keys = stub_heads
+        self._item_keys = self.sorted_order(stub_heads)
 
     def __uinform_data_list(self):
         """
@@ -111,14 +129,36 @@ class DataFrame(metaclass=_Create_Data):
 
         Here the sencond dict will be assigned a "_v" attribute with a default of None
         """
-        for item in self.data_list:
+        
+        for  i , item in enumerate(self.data_list):
             for x in self._item_keys:
                 if item.get(x, False) == False:
                     item[x] = None
 
+            self.data_list[i] =  { key : item[key] for key in  self.sorted_order(self.data_list[i])}
+            
     # Private methods
-    def _pr(self):
-        pass
+    def _create_sorter(self):
+        def sorter(li): 
+            if isinstance(li , dict):
+                li = list(li.keys())
+            elif isinstance(li , list) : 
+                pass
+            else : 
+                raise Exception("Invalid Type passed as sorter!")  
+             
+            li = self.sort_order
+
+            z = []
+            for x in  self._item_keys :  
+                if x not in li: 
+                    z.append(x)   
+                z = sorted(z)
+
+            li += z
+
+            return tuple(li)
+        return sorter    
 
     # Run time subclass methods generators
     def _common_repr(self, key):

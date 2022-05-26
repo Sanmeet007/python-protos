@@ -52,7 +52,7 @@ This is an example of how to use DataFrame class to pretty print tables and make
                "body": "Elit consectetur nisi esse fugiat anim irure.",
                "uuid": "b08349m320m=-081",
            },
-       ]
+       ] , ["uuid" , "id" , "data"] , indexed=False
    )
 
    ```

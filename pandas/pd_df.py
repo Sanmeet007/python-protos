@@ -69,6 +69,35 @@ class DataFrame(metaclass=_Create_Data):
 
     # Dundder methods
     def __getitem__(self, item):
+        if  isinstance( item , tuple): 
+            li = []
+            z = []
+
+            for x in self._item_keys:
+                if x in item:
+                    z += [x]
+
+                    
+            for x in self.data_list : 
+                li.append({k : x[k] for k in x if k in z })
+
+            return DataFrame(li , list(item) , indexed=self.indexed)
+
+        if isinstance(item  , str):
+            li = []
+            z = None
+
+            for x in self._item_keys:
+                if x == item:
+                    z = x
+
+            for x in self.data_list : 
+                for y in x: 
+                    if y == z : 
+                        li.append({k : x[k] for k in x if k == y })
+
+            return DataFrame(li ,  None , indexed=self.indexed)
+
         if isinstance(item, self._dbool):
             count = 0
             current_list = []

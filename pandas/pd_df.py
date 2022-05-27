@@ -1,3 +1,5 @@
+from os import remove
+from typing import Callable
 import prettytable, json
 from json2html import json2html
 
@@ -12,7 +14,7 @@ class DataFrame(metaclass=_Create_Data):
     data_list: list = []
     indexed:bool
 
-    def __init__(self, data_list , sort_order:tuple|list|None=None  , **kwargs):
+    def __init__(self, data_list , sort_order:tuple|list|None=None  , **kwargs) -> None:
         self.indexed = kwargs.get("indexed"  , False)
         self.sort_order  = sort_order
 
@@ -54,21 +56,54 @@ class DataFrame(metaclass=_Create_Data):
             setattr(self, key, self.__getattribute__("_" + key)())
 
     # Methods
-    def to_list(self):
+    def to_list(self) -> str:
         return list(self.data_list)
 
-    def to_json(self):
+    def to_json(self) -> str:
         li = list(self.data_list)
         li = json.dumps(li, indent=2)
         return li
 
-    def to_html(self):
+    def to_html(self) -> str:
         li = self.to_json()
         li = json2html.convert(li)
         return li
 
+    def to_csv(self) -> str:
+        x = ",".join(self._item_keys)
+        x += "\n"
+        for item in self.data_list: 
+            keys = ",".join([str(k).replace(","  , " ")for k in item.values()])
+            x += f"{keys}\n"
+
+        return x
+        
+    def export(self ,  file_name:str="output",format:str="json"  , directory:str="./") -> bool:
+        file_url = f"{directory}/{file_name}.{format}"
+        final = False
+        with open( file_url, "w") as file :
+            s = ""
+            try:
+                match format: 
+                    case "json": 
+                        s = self.to_json()      
+                    case "csv":
+                        s = self.to_csv()      
+                    case "html":
+                        s = self.to_html()      
+                    case _ : 
+                        raise Exception("Invalid file format")   
+
+                file.write(s)    
+                final = True
+            except Exception as E:
+                final = False
+
+        if final == False : remove(file_url)
+        return final
+
     # Dundder methods
-    def __getitem__(self, item):
+    def __getitem__(self, item:str|tuple|int|slice) -> object:
         if  isinstance( item , tuple): 
             li = []
             z = []
@@ -114,7 +149,7 @@ class DataFrame(metaclass=_Create_Data):
         else:
             return DataFrame(li , self.sort_order)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         x = prettytable.PrettyTable()
         
         x.field_names = [ " ", *self._item_keys]  if self.indexed else self._item_keys
@@ -128,7 +163,7 @@ class DataFrame(metaclass=_Create_Data):
         return f"{x}\n_dtype : Dataframe_object"
 
     # Super Private methods
-    def __add_items(self):
+    def __add_items(self) -> None:
         """
         Returns all the possible stub heads
         """
@@ -142,7 +177,7 @@ class DataFrame(metaclass=_Create_Data):
         self._item_keys = stub_heads
         self._item_keys = self.sorted_order(stub_heads)
 
-    def __uinform_data_list(self):
+    def __uinform_data_list(self) -> None: 
         """
         Modifies the data_list to make it uniform.
         NOTE : attributes with no values or if they dont exist then None will be assigned by default.
@@ -190,7 +225,7 @@ class DataFrame(metaclass=_Create_Data):
         return sorter    
 
     # Run time subclass methods generators
-    def _common_repr(self, key):
+    def _common_repr(self, key:str) -> Callable:
         """
         Defines the __repr__ for the subclass object generated on the fly or at run time
         """
@@ -210,7 +245,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return custom_repr
 
-    def _common_eq(self, key):
+    def _common_eq(self, key:str) -> Callable:
         """
         Defines the __eq__ for the subclass object generated on the fly or at run time
         """
@@ -221,7 +256,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return common_eq
 
-    def _common_gt(self, key):
+    def _common_gt(self, key:str) -> Callable:
         """
         Defines the __gt__ for the subclass object generated on the fly or at run time
         """
@@ -232,7 +267,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return common_gt
 
-    def _common_gte(self, key):
+    def _common_gte(self, key:str) -> Callable:
         """
         Defines the __gt__ for the subclass object generated on the fly or at run time
         """
@@ -243,7 +278,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return common_gte
 
-    def _common_lt(self, key):
+    def _common_lt(self, key:str) -> Callable:
         """
         Defines the __gt__ for the subclass object generated on the fly or at run time
         """
@@ -254,7 +289,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return common_lt
 
-    def _common_lte(self, key):
+    def _common_lte(self, key:str) -> Callable:
         """
         Defines the __gt__ for the subclass object generated on the fly or at run time
         """
@@ -265,7 +300,7 @@ class DataFrame(metaclass=_Create_Data):
 
         return common_lte
 
-    def _common_op(self, key, op):
+    def _common_op(self, key:str, op:str) -> Callable:
         def common_op(_self, val):
             dbool = self._dbool(self.data_list, key, val, op)
             return dbool
@@ -278,7 +313,7 @@ class DataFrame(metaclass=_Create_Data):
         This class is responisble for logically fetching the data based on the fields or the stub heads (basically the keys of dicts)
         """
 
-        def __init__(self, data_list, key, val, op_type="eq") -> None:
+        def __init__(self, data_list:list, key:str, val:str, op_type:str="eq") -> None:
             self.data_list = data_list
             self.tuple = self._gen_tup(key, val, op_type)
 
@@ -295,14 +330,14 @@ class DataFrame(metaclass=_Create_Data):
 
             return f"{x}\n_dtype : DataFrame_dbool"
 
-        def __and__(self, comp_obj):
+        def __and__(self, comp_obj:object) -> object:
             """
             Overloads the & to give a logical and for _dbool data
             """
             final_obj = self._compare(comp_obj, "and")
             return final_obj
 
-        def __or__(self, comp_obj):
+        def __or__(self, comp_obj:object) -> object:
             """
             Overloads the | to give a logical or for _dbool data
             """
@@ -310,7 +345,7 @@ class DataFrame(metaclass=_Create_Data):
             return final_obj
 
         # Private methods
-        def _gen_tup(self, key, val, op_type):
+        def _gen_tup(self, key:str, val:str, op_type:str) -> tuple:
             """
             Converts the data_list to tuple which is used for further comparision
             """
@@ -337,7 +372,7 @@ class DataFrame(metaclass=_Create_Data):
 
             return tuple(final_tup)
 
-        def _compare(self, dbool_obj, op_type):
+        def _compare(self, dbool_obj:object, op_type:str) -> tuple:
             """
             Used to compare the _dbool objects logically
             """
@@ -353,6 +388,15 @@ class DataFrame(metaclass=_Create_Data):
 
             self.tuple = tuple(final_tup)
             return self
+# To be implemeted
+# def read_csv(): 
+#     pass
+
+# def read_json(): 
+#     pass
+
+# def read_html(): 
+#     pass
 
 
 if __name__ == "__main__":
